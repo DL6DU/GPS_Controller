@@ -79,9 +79,32 @@ const char UBLOX_INIT[] PROGMEM = {
 
 // *********  Nur dieses grad ausgewählt 
   // CFG-TP5 1Hz / 2 Mhz no sync 50ms cable delay
-  0xB5, 0x62, 0x06, 0x31, 0x20, 0x00, 0x00, 0x01, 0x00, 0x00, 0x32, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x80, 0x84, 0x1E, 0x00,
-  0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x6F, 0x00, 0x00, 0x00, 0x1C, 0x1E,
+  0xB5,0x62,// header
+  0x06,0x31,// time pulse get/set  Time Pulse Parameters
+  0x20,// lenght 32
+  0x00,// tpIdx time pulse selection >>> 0 = timepulse1 , 1 = timepulse2  (U1 Char)
+  0x00,// reserved0 U1
+  0x01, 0x00,// reserved1 U2
+  0x00, 0x32,// antCableDelay ns 
+  0x00, 0x00,// rf group delay in nS I2 
+  0x00, 0x01, 0x00, 0x00,// Frequency or period time, depending on setting of bit 'isFreq'
+  0x00, 0x80, 0x84, 0x1E,// freqPeriodLoc  Frequency or period time when locked to GPS time, only used if 'lockedOtherSet' is set
+  0x00,0x00, 0x00, 0x00,// pulselenRatio  , Pulse length or duty cycle, depending on 'isLength'
+  0x80, 0x00, 0x00, 0x00,// pulselenRatio , Pulse length or duty cycle when locked to GPS time, only used if 'lockedOtherSet' is set
+  0x80, 0x00, 0x00, 0x00,// userConfigDelay ns  User configurable time pulse delay
+  0x00, 0x6F, 0x00, 0x00,// flags - page 135 u-blox 7 Receiver Description Including Protocol Specification V14.pdf
+  0x00, 0x1C, 0x1E,
 
+// Flags
+// 0 = Active  , if set enable time pulse; if pin assigned to another function, other function takes precedence
+// 1 = LockGpsFreq , if set synchronize time pulse to GPS as soon as GPS time is valid, otherwise use local clock
+// 2 = lockedOtherSet , if set use 'freqPeriodLock' and 'pulseLenRatioLock' as soon as GPS time is valid and 'freqPeriod' and 'pulseLenRatio' if GPS time is invalid,
+//                       if flag is cleared 'freqPeriod' and 'pulseLenRatio' used regardless of GPS time
+// 3 = isFreq ,  if set 'freqPeriodLock' and 'freqPeriod' interpreted as frequency, otherwise interpreted as period
+// 4 = isLength , if set 'pulseLenRatioLock' and 'pulseLenRatio' interpreted as pulse length, otherwise interpreted as duty cycle
+// 5 = alignToTow , align pulse to top of second (period time must be integer fraction of 1s)
+// 6 = polarity , pulse polarity: 0 = falling edge at top of second 1 = rising edge at top of second
+// 7 = gridUtcGps , timegrid to use: 0 = UTC  1 = GPS
 
 /*  
   //*** UBX-CFG-TP5 parameters (not fully complete)
